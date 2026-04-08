@@ -30,6 +30,32 @@ async function saveTelegramConfig(config: TelegramConfig): Promise<void> {
   await fs.writeFile(configPath, JSON.stringify(config, null, 2))
 }
 
+async function ensureOpenCodeProvider(): Promise<void> {
+  const configPath = path.join(Global.Path.config, "config.json")
+  let existingConfig: any = {}
+  
+  try {
+    const content = await fs.readFile(configPath, "utf-8")
+    existingConfig = JSON.parse(content)
+  } catch {
+    // No config exists, start fresh
+  }
+
+  // Ensure opencode provider is configured
+  if (!existingConfig.provider?.opencode) {
+    existingConfig.provider = existingConfig.provider || {}
+    existingConfig.provider.opencode = {
+      enabled: true
+    }
+    
+    // Set default model to gpt-5-nano (free model from OpenCode Zen)
+    existingConfig.model = "opencode/gpt-5-nano"
+    
+    await fs.writeFile(configPath, JSON.stringify(existingConfig, null, 2))
+    log.info("Created config with opencode provider and gpt-5-nano model")
+  }
+}
+
 export function setupTelegramRoutes(app: Hono) {
   const telegramApp = new Hono()
 
@@ -297,6 +323,9 @@ class TelegramBot {
 }
 
 export async function startTelegramBot() {
+  // Ensure opencode provider is configured with free model
+  await ensureOpenCodeProvider()
+
   const config = await getTelegramConfig()
 
   if (!config.enabled || !config.token) {
