@@ -1,0 +1,63 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/nattagid/.claude/hooks/rtk-rewrite.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "FILE=\"$CLAUDE_TOOL_INPUT_FILE_PATH\"; if [ -n \"$FILE\" ] && echo \"$FILE\" | grep -qE '\\.(ts|tsx|js|jsx)$'; then cd \"$(dirname $FILE)\" && npx prettier --write \"$FILE\" --log-level silent 2>/dev/null || true; fi"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ \"$CLAUDE_TOOL_EXIT_CODE\" != \"0\" ]; then echo \"[กู๊ดดี้] ⚠️ Command failed — หา root cause ก่อน retry\"; fi"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "osascript -e 'display notification \"กู๊ดดี้ needs input 👋\" with title \"Claude Code\" sound name \"Glass\"' 2>/dev/null || true"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "osascript -e 'display notification \"Task complete! ✅\" with title \"กู๊ดดี้\" sound name \"Hero\"' 2>/dev/null && bash $HOME/.claude/scripts/auto-learn.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "effortLevel": "medium",
+  "skipDangerousModePermissionPrompt": true,
+  "permissions": {
+    "allow": [
+      "Bash(supabase --version)"
+    ]
+  },
+  "model": "haiku"
+}
