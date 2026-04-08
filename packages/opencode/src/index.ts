@@ -27,6 +27,7 @@ import { WebCommand } from "./cli/cmd/web"
 import { PrCommand } from "./cli/cmd/pr"
 import { SessionCommand } from "./cli/cmd/session"
 import { YoloCommand } from "./cli/cmd/yolo"
+import { TelegramCommand } from "./cli/cmd/telegram"
 
 process.on("unhandledRejection", (e) => {
   Log.Default.error("rejection", {
@@ -111,6 +112,7 @@ const cli = yargs(hideBin(process.argv))
   .command(PrCommand)
   .command(SessionCommand)
   .command(YoloCommand)
+  .command(TelegramCommand)
   .fail((msg, err) => {
     if (
       msg?.startsWith("Unknown argument") ||
