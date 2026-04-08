@@ -1,6 +1,7 @@
 import { Hono } from "hono"
 import { Log } from "../util/log"
 import { Global } from "../global"
+import { Config } from "../config/config"
 import fs from "fs/promises"
 import path from "path"
 
@@ -193,14 +194,41 @@ class TelegramBot {
     await this.sendAction(chatId, "typing")
 
     try {
-      const response = await fetch(`http://localhost:4096/session`, {
+      // Step 1: Create a new session
+      const createResponse = await fetch(`http://localhost:4096/session`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          directory: process.cwd(),
+        }),
+      })
+
+      if (!createResponse.ok) {
+        const errorText = await createResponse.text()
+        log.error("Failed to create session", { status: createResponse.status, error: errorText })
+        await this.sendMessage(
+          chatId,
+          "❌ Error: Could not create OpenCode session. Make sure the server is running.",
+          messageId
+        )
+        return
+      }
+
+      const session = await createResponse.json()
+      const sessionID = session.id
+
+      log.info(`Created session ${sessionID} for chat ${chatId}`)
+
+      // Step 2: Send the message
+      const response = await fetch(`http://localhost:4096/session/${sessionID}/message`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           message: text,
-          directory: process.cwd(),
         }),
       })
 
