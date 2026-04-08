@@ -41,6 +41,54 @@ bun run ./packages/opencode/bin/opencode serve
 - Send `/start` to begin
 - Chat with OpenCode just like you would in the terminal!
 
+## How It Works (No API Key Required!)
+
+**This version automatically configures itself to use OpenCode Zen's free model.**
+
+When the server starts, it automatically:
+1. Checks for a `config.json` in `~/.config/opencode/`
+2. If not found, creates one with the **OpenCode provider** and **gpt-5-nano model**
+3. `gpt-5-nano` is powered by **big-pickle** - completely free via OpenCode Zen
+
+**You don't need any API keys!** The configuration is handled automatically.
+
+### Manual Configuration (Optional)
+
+If you want to use a different model, create the config manually:
+
+```bash
+mkdir -p ~/.config/opencode
+cat > ~/.config/opencode/config.json
+```
+
+Example config:
+```json
+{
+  "model": "opencode/gpt-5-nano"
+}
+```
+
+Or with a custom model:
+```json
+{
+  "model": "opencode/gpt-5-nano",
+  "provider": {
+    "opencode": {
+      "enabled": true
+    }
+  }
+}
+```
+
+## Available Models
+
+| Model | Provider | Cost |
+|-------|----------|------|
+| gpt-5-nano | OpenCode Zen | Free |
+| gpt-5-mini | OpenCode Zen | Paid |
+| claude-sonnet-4 | Anthropic | Paid |
+| gemini-2.5-flash | Google | Paid |
+
 ## Commands
 
 ```bash
@@ -53,12 +101,6 @@ opencode telegram status
 # Disable Telegram bot
 opencode telegram disable
 ```
-
-## How It Works
-
-- When you run `opencode serve`, the server starts and checks for a Telegram token
-- If a token exists, the bot automatically connects and listens for messages
-- Messages are processed through OpenCode's AI and you get responses back in Telegram
 
 ## Environment Variables (Optional)
 
